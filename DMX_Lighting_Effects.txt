@@ -1,0 +1,22 @@
+Library to use Madrix with ESP8266 - Example works!!!
+https://github.com/rstephan/ArtnetWifi
+
+Original Artnet library - one example is to capture DMX frames, store it in sd card and play them back - Example ArtnetNeoPixelSD.ino works !!!
+https://github.com/natcl/Artnet
+https://github.com/natcl/Artnet/tree/master/examples/ArtnetNeoPixelSD
+
+
+
+
+
+
+
+Create lighting effects using Vixen, export it to a file, copy file to sd card and use Arduino to read the data and send it to LEDs
+https://www.dorkbotpdx.org/blog/paul/dmx_lighting_sequence_player
+
+Read DMX data from a SD card and apply to FastLED
+http://stackoverflow.com/questions/36896918/reading-bytes-from-arduino-sd-card-to-dmx-lighting
+http://pastebin.com/wHAT6dZB
+
+FastLED library - works with WS2812B
+http://fastled.io/
