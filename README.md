@@ -1,11 +1,13 @@
+# ArtNet_DMX_SD_Card
+
 This project is used to store DMX frames received through Artnet on a nodemcu to a SD card with one sketch.  With the other sketch, playback the stored
 effects.
 
 Using two buttons, we can store several effects in individual files (with incremental names) when the recording sketch is active.   Using the same buttons, we can play the previous or next effect from the various files when the playback sketch is active.
 
 
-Hardware:
-=========
+## Hardware
+
 nodemcu
 SD card reader with microSD card
 Two Push buttons
@@ -14,12 +16,14 @@ WS2812B LED strip
 Power supply
 
 
-Connections:
-============
+## Connections
 
-SD Card reader:
----------------
-nodemcu		SD card reader
+![alt tag](https://github.com/tangophi/Artnet_DMX_SD_Card/blob/master/nodemcu_sd_card_ws2812b_push_buttons_bb.png)
+
+### SD Card reader
+
+nodemcu		   SD card reader
+   
    D5     <-->     SCK
    D6     <-->     MISO
    D7     <-->     MOSI
@@ -27,8 +31,8 @@ nodemcu		SD card reader
   3.3v    <-->     3.3v
    G      <-->      GND
 
-Push buttons:
--------------
+### Push buttons
+
 Connect D2 of nodemcu to one leg of push button.  Also connect that leg to GND through a 10K resistor.  Connect the other leg of the button to 3.3v.
 Connect D1 of nodemcu to one leg of another push button.  Also connect that leg to GND through another 10K reistor.  Connect the other leg of the button to 3.3v.
 
@@ -38,13 +42,13 @@ The above connections will remain the same for both recording and playback.
 For recording, push button connected to D2 will be 'Start' button.  Push button connected to D1 will be 'Stop' button.
 For playback, push button connected to D2 will be 'Previous' button.  Push button connected to D1 will be 'Next' button.
 
-LED Strip:
-----------
+### LED Strip
+
 The DIN of the WS2812B strip is connected to D4 pin of the nodemcu.
 
 
-Uploading the sketch:
-=====================
+## Uploading the sketch
+
 Arduino IDE 1.8.0 has been used in this project.  Before uploading either of the recording or playback sketches, make sure the following libraries are installed.
 
 SPI
@@ -56,8 +60,8 @@ Adafruit_NeoPixel
 
 
 
-For recording effects:
-======================
+## For recording effects
+
 1.  Upload Store_DMX_Frames_Received_Through_ArtNet_To_SD_Card.ino sketch to the nodemcu.
 
 2.  Configure Madrix to send DMX frames to the nodemcu.
@@ -75,15 +79,15 @@ For recording effects:
 Repeat steps 4 to 8 to record the second effect (to file 'data1') and more effects (and more files).
 
 
-*** NOTE *** IMPORTANT ***
-==========================
+# *** NOTE *** IMPORTANT ***
+
 If you reset the nodemcu or poweroff then power on the nodemcu when the recording sketch is active, then it will start overwriting the data files
 from the beginning, that is from data0.
 
 
 
-For replaying effects:
-======================
+## For replaying effects
+
 1.  Upload Play_Stored_DMX_Frames_From_SD_Card.ino sketch to the nodemcu.
 
 2.  Madrix is not needed for this.  A wifi connection is also not needed.  Wifi wont be started on the nodemcu.
@@ -96,13 +100,11 @@ For replaying effects:
 
 
 
+## Links
 
 
-Links:
-======
+### Used in this project
 
-Used in this project:
----------------------
 Library to use Madrix with ESP8266 - Example works!!!
 https://github.com/rstephan/ArtnetWifi
 
@@ -112,8 +114,8 @@ https://github.com/natcl/Artnet/tree/master/examples/ArtnetNeoPixelSD
 
 
 
-Other Links not used in this project:
--------------------------------------
+### Other Links not used in this project
+
 Create lighting effects using Vixen, export it to a file, copy file to sd card and use Arduino to read the data and send it to LEDs
 https://www.dorkbotpdx.org/blog/paul/dmx_lighting_sequence_player
 
