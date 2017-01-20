@@ -1,19 +1,18 @@
 # ArtNet_DMX_SD_Card
 
-This project is used to store DMX frames received through Artnet on a nodemcu to a SD card with one sketch.  With the other sketch, playback the stored
-effects.
+A project used to store DMX frames received through Artnet on a nodemcu to a SD card with one sketch.  With the other sketch, playback the stored effects.  With this, a standalone way to playback LED effects is possible without the need to have a software sending DMX frames or even a WiFi connection.
 
 Using two buttons, we can store several effects in individual files (with incremental names) when the recording sketch is active.   Using the same buttons, we can play the previous or next effect from the various files when the playback sketch is active.
 
 
 ## Hardware
 
-nodemcu
-SD card reader with microSD card
-Two Push buttons
-Two 10K resistors
-WS2812B LED strip
-Power supply
+nodemcu  
+SD card reader with microSD card  
+Two push buttons  
+Two 10K resistors  
+WS2812B LED strip  
+Power supply  
 
 
 ## Connections
@@ -22,14 +21,14 @@ Power supply
 
 ### SD Card reader
 
-nodemcu		   SD card reader
-   
-   D5     <-->     SCK
-   D6     <-->     MISO
-   D7     <-->     MOSI
-   D8     <-->      CS
-  3.3v    <-->     3.3v
-   G      <-->      GND
+nodemcu		   SD card reader  
+  
+   D5             SCK  
+   D6             MISO  
+   D7             MOSI  
+   D8              CS  
+  3.3v            3.3v  
+   G              GND  
 
 ### Push buttons
 
@@ -51,12 +50,12 @@ The DIN of the WS2812B strip is connected to D4 pin of the nodemcu.
 
 Arduino IDE 1.8.0 has been used in this project.  Before uploading either of the recording or playback sketches, make sure the following libraries are installed.
 
-SPI
-SD
-ESP8266WiFi
-WiFiUdp
-ArtnetWifi
-Adafruit_NeoPixel
+SPI  
+SD  
+ESP8266WiFi  
+WiFiUdp  
+ArtnetWifi  
+Adafruit_NeoPixel  
 
 
 
