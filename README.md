@@ -1,13 +1,13 @@
-# ArtNet_DMX_SD_Card
+# ArtNet_DMX_SD_Card_ESP8266
 
-A project used to store DMX frames received through Artnet on a nodemcu to a SD card with one sketch.  With the other sketch, playback the stored effects.  With this, a standalone way to playback LED effects is possible without the need to have a software sending DMX frames or even a WiFi connection.
+A project used to store DMX frames received through Artnet on a nodemcu or a ESP8266/ESP12 module to a SD card with one sketch.  With the other sketch, playback the stored effects.  With this, a standalone way to playback LED effects is possible without the need to have a software sending DMX frames or even a WiFi connection.
 
 Using two buttons, we can store several effects in individual files (with incremental names) when the recording sketch is active.   Using the same buttons, we can play the previous or next effect from the various files when the playback sketch is active.
 
 
 ## Hardware
 
-nodemcu  
+nodemcu or a ESP8266 ESP12 module
 SD card reader with microSD card  
 Two push buttons  
 Two 10K resistors  
@@ -19,16 +19,6 @@ Power supply
 
 ![alt tag](https://github.com/tangophi/Artnet_DMX_SD_Card/blob/master/nodemcu_sd_card_ws2812b_push_buttons_bb.png)
 
-### SD Card reader
-
-nodemcu		   SD card reader  
-  
-   D5             SCK  
-   D6             MISO  
-   D7             MOSI  
-   D8              CS  
-  3.3v            3.3v  
-   G              GND  
 
 ### Push buttons
 
@@ -40,11 +30,6 @@ The above connections will remain the same for both recording and playback.
 
 For recording, push button connected to D2 will be 'Start' button.  Push button connected to D1 will be 'Stop' button.
 For playback, push button connected to D2 will be 'Previous' button.  Push button connected to D1 will be 'Next' button.
-
-### LED Strip
-
-The DIN of the WS2812B strip is connected to D4 pin of the nodemcu.
-
 
 ## Uploading the sketch
 
@@ -78,10 +63,9 @@ Adafruit_NeoPixel
 Repeat steps 4 to 8 to record the second effect (to file 'data1') and more effects (and more files).
 
 
-# *** NOTE *** IMPORTANT ***
+### IMPORTANT
 
-If you reset the nodemcu or poweroff then power on the nodemcu when the recording sketch is active, then it will start overwriting the data files
-from the beginning, that is from data0.
+If you reset the nodemcu or poweroff then power on the nodemcu when the recording sketch is active, then it will start overwriting the data files from the beginning, that is from data0.
 
 
 
@@ -113,7 +97,7 @@ https://github.com/natcl/Artnet/tree/master/examples/ArtnetNeoPixelSD
 
 
 
-### Other Links not used in this project
+### Other Links - not used in this project
 
 Create lighting effects using Vixen, export it to a file, copy file to sd card and use Arduino to read the data and send it to LEDs
 https://www.dorkbotpdx.org/blog/paul/dmx_lighting_sequence_player
