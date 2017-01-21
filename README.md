@@ -4,8 +4,11 @@ A project used to store DMX frames received through Artnet on a nodemcu or a ESP
 
 Using two buttons, we can store several effects in individual files (with incremental names) when the recording sketch is active.   Using the same buttons, we can play the previous or next effect from the various files when the playback sketch is active.
 
+Click on the image below for a demo video.  
+<div style="width:100%;text-align:center;">
 <a href="https://www.youtube.com/watch?v=Zn1N7YUXMdQ&feature=youtu.be" target="_blank"><img src="https://img.youtube.com/vi/Zn1N7YUXMdQ/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
+</div>
 
 ## Hardware
 
