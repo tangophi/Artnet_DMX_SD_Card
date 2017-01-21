@@ -4,6 +4,8 @@ A project used to store DMX frames received through Artnet on a nodemcu or a ESP
 
 Using two buttons, we can store several effects in individual files (with incremental names) when the recording sketch is active.   Using the same buttons, we can play the previous or next effect from the various files when the playback sketch is active.
 
+<a href="https://www.youtube.com/watch?v=Zn1N7YUXMdQ&feature=youtu.be" target="_blank"><img src="https://img.youtube.com/vi/Zn1N7YUXMdQ/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
 
 ## Hardware
 
@@ -56,11 +58,9 @@ Adafruit_NeoPixel
 
 5.  To stop storing the effect, press the second (Stop) button.  This will close the current file and automatically will open the next file, like 'data1' for writing.
 
-7.  Stop the first effect on the Madrix.
+6.  Play the next effect on the Madrix. 
 
-8.  Play the next effect on the Madrix. 
-
-Repeat steps 4 to 8 to record the second effect (to file 'data1') and more effects (and more files).
+Repeat steps 4 to 6 to record the second effect (to file 'data1') and more effects (and more files).
 
 
 ### IMPORTANT
@@ -88,10 +88,10 @@ If you reset the nodemcu or poweroff then power on the nodemcu when the recordin
 
 ### Used in this project
 
-Library to use Madrix with ESP8266 - Example works!!!
+Library to use Madrix with ESP8266  
 https://github.com/rstephan/ArtnetWifi
 
-Original Artnet library - one example is to capture DMX frames, store it in sd card and play them back - Example ArtnetNeoPixelSD.ino works !!!
+Original Artnet library - one example is to capture DMX frames, store it in a SD card and play them back  
 https://github.com/natcl/Artnet
 https://github.com/natcl/Artnet/tree/master/examples/ArtnetNeoPixelSD
 
@@ -99,12 +99,12 @@ https://github.com/natcl/Artnet/tree/master/examples/ArtnetNeoPixelSD
 
 ### Other Links - not used in this project
 
-Create lighting effects using Vixen, export it to a file, copy file to sd card and use Arduino to read the data and send it to LEDs
+Create lighting effects using Vixen, export it to a file, copy file to sd card and use Arduino to read the data and send it to LEDs  
 https://www.dorkbotpdx.org/blog/paul/dmx_lighting_sequence_player
 
-Read DMX data from a SD card and apply to FastLED
+Read DMX data from a SD card and apply to FastLED  
 http://stackoverflow.com/questions/36896918/reading-bytes-from-arduino-sd-card-to-dmx-lighting
 http://pastebin.com/wHAT6dZB
 
-FastLED library - works with WS2812B
+FastLED library - works with WS2812B  
 http://fastled.io/

@@ -1,8 +1,11 @@
 /*
-Same as ArtnetNeoPixel.ino but with controls to record and playback sequences from an SD card. 
-To record, send 255 to the first channel of universe 14. To stop, send 0 and to playback send 127.  
-The limit of leds seems to be around 450 to get 44 fps. The playback routine is not optimzed yet.
-This example may be copied under the terms of the MIT license, see the LICENSE file for details
+ * This sketch is used to read the stored LED lighting effects from a SD card on a 
+ * nodemcu or a ESP8266 module.  'Next' button will play the file or effect.  Previous
+ * button will play the previous effect.
+ * 
+ * WiFi connection is not needed for this sketch to work.
+ *  
+ * https://github.com/tangophi/Artnet_DMX_SD_Card
 */
 
 #include <SPI.h>
@@ -18,8 +21,8 @@ This example may be copied under the terms of the MIT license, see the LICENSE f
 #define PIN_LED               2
 
 //Wifi settings
-const char* ssid = "NiceMoose";
-const char* password = "NetgearW";
+const char* ssid = "YOUR_SSID";
+const char* password = "YOUR_PASSWD";
 
 // Neopixel settings
 const int numLeds = 39; // change for your setup

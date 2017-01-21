@@ -1,8 +1,12 @@
 /*
-Same as ArtnetNeoPixel.ino but with controls to record and playback sequences from an SD card. 
-To record, send 255 to the first channel of universe 14. To stop, send 0 and to playback send 127.  
-The limit of leds seems to be around 450 to get 44 fps. The playback routine is not optimzed yet.
-This example may be copied under the terms of the MIT license, see the LICENSE file for details
+ * This sketch is used to store DMX frames received through ArtNet protocol to a SD card on a nodemcu
+ * or a ESP8266 module.  'Start' button is to start recording frames while 'Stop' button is to stop 
+ * recording.  Multiple effects can be stored in individual files with incremental names.
+ *  
+ *  LED strip need not be connected for this sketch to work.  However the strip need to be defined
+ *  in the sketch so that the sketch can calculate the number of pixels, channels and universes.
+ *  
+ * https://github.com/tangophi/Artnet_DMX_SD_Card 
 */
 
 #include <SPI.h>
@@ -18,8 +22,8 @@ This example may be copied under the terms of the MIT license, see the LICENSE f
 #define PIN_LED            2
 
 //Wifi settings
-const char* ssid = "NiceMoose";
-const char* password = "NetgearW";
+const char* ssid = "YOUR_SSID";
+const char* password = "YOUR_PASSWD";
 
 // Neopixel settings
 const int numLeds = 39; // change for your setup
@@ -38,8 +42,9 @@ File datafile;
 char fileNameFull[10] = "";
 int  fileNameSuffix   = 0;
 
-volatile bool record   = false;
-volatile bool nextFile = false;
+volatile bool startRecord = false;
+volatile bool stopRecord  = false;
+volatile bool recording   = false;
 
 
 // Check if we got all universes
@@ -82,26 +87,21 @@ boolean ConnectWifi(void)
   return state;
 }
 
-// When the start button is pressed, set 'record' to true.  Since the file is already opened
-// for write, on receipt of full DMX frames, it will be written to the file.
+
 void buttonHandlerStart()
 {
-  if (!record)
+  if (!recording && !startRecord)
   {
-    record = true;
+    startRecord = true;
     Serial.println("Start button pressed.");
   }
 }
 
-// When the stop button is pressed, set 'record' to false.  This will stop DMX frames from being
-// written to the exisiting file in onDmxFrame() function.  Also as nextFile is set to true, in
-// the loop() function, the existing file will be closed and the next file is opened for writing.
 void buttonHandlerStop()
 {
-  if (record)
+  if (recording && !stopRecord)
   {
-    record = false;
-    nextFile = true;
+    stopRecord = true;
     Serial.println("Stop button pressed.");
   }
 }
@@ -115,21 +115,23 @@ void setup()
   }
   
   if (!SD.begin(PIN_SD_CS)) {
-    Serial.println("initialization failed!");
+    Serial.println("Initialization failed!");
   }
   else
-    Serial.println("initialization done.");
+    Serial.println("Initialization done.");
 
   ConnectWifi();
   artnet.begin();
   leds.begin();
-  initTest();
+//  initTest();
+  for (int i = 0 ; i < numLeds ; i++)
+    leds.setPixelColor(i, 0, 0, 0);
+  leds.show();
   
   attachInterrupt (PIN_START_BUTTON,   buttonHandlerStart,   RISING);
   attachInterrupt (PIN_STOP_BUTTON,    buttonHandlerStop,    RISING);
 
   sprintf(fileNameFull, "data%d", fileNameSuffix);
-  datafile = SD.open(fileNameFull, FILE_WRITE);
   
   // this will be called for each packet received
   artnet.setArtDmxCallback(onDmxFrame);
@@ -140,26 +142,39 @@ void loop()
   // we call the read function inside the loop
   artnet.read();
 
-  // When the stop button is pressed, close the previous file and open the next file
-  // to record.
-  if (!record && nextFile)
+  // Open a file for writing when the start button is pressed
+  // and also set recording to true so that incoming DMX frames
+  // are written to the file.
+  if (startRecord && !recording)
   {
-    nextFile = false;
-
-    Serial.print("Closing ");
-    Serial.print(fileNameFull);
-
-    datafile.close();
-    memset(fileNameFull, 0, 10);
-    sprintf(fileNameFull, "data%d", ++fileNameSuffix);  // fileNameSuffix is incremened for the next filename.
     datafile = SD.open(fileNameFull, FILE_WRITE);
     
-    Serial.print(" and opening ");
-    Serial.print(fileNameFull);
-    Serial.println(" for writing.");
+    Serial.print("Opening ");
+    Serial.println(fileNameFull);
+
+    startRecord = false;
+    recording = true;
+  }
+
+  // Stop the recording when the stop button is pressed and close 
+  // the current file which was earlier opened for writing.  Also 
+  // increment the fileNameFull variable.
+  if (recording && stopRecord)
+  {
+    recording = false;
+    delay(30);
+    Serial.print("Closing ");
+    Serial.println(fileNameFull);
+
+    datafile.close();
+    sprintf(fileNameFull, "data%d", ++fileNameSuffix);  // fileNameSuffix is incremened for the next filename.
+    stopRecord = false;
   }
 }
 
+// This function is called for every packet received.  It will contain data for only
+// one universe.  Hence, wait till data for all universes are received before 
+// writing a full frame to the file.
 void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data)
 {
   storeFrame = 1;
@@ -190,7 +205,7 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
   
   // Write data to the file if a full DMX frame containing data for all the universes is received and if we 
   // are still recording
-  if (record && storeFrame)
+  if (recording && storeFrame)
   {    
     datafile.write(channelBuffer, numberOfChannels);
     memset(universesReceived, 0, maxUniverses);
