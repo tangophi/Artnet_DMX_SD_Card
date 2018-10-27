@@ -1,10 +1,14 @@
 /*
- * This sketch is used to store DMX frames received through ArtNet protocol to a SD card on a nodemcu
- * or a ESP8266 module.  'Start' button is to start recording frames while 'Stop' button is to stop 
- * recording.  Multiple effects can be stored in individual files with incremental names.
+ *  This sketch is used to store DMX frames received through ArtNet protocol to a SD card on a nodemcu
+ *  or a ESP8266 module.  'Start' button is to start recording frames while 'Stop' button is to stop 
+ *  recording.  Multiple effects can be stored in individual files with incremental names.
  *  
  *  LED strip need not be connected for this sketch to work.  However the strip need to be defined
  *  in the sketch so that the sketch can calculate the number of pixels, channels and universes.
+ *  
+ *  Change numLeds and startUniverse according to your setup.
+ *  
+ *  In Madrix, in Preferences-> Device Manager-> DMX Devices, make sure "Send full frames" box is not checked.
  *  
  * https://github.com/tangophi/Artnet_DMX_SD_Card 
 */
@@ -22,19 +26,18 @@
 #define PIN_LED            2
 
 //Wifi settings
-const char* ssid = "YOUR_SSID";
-const char* password = "YOUR_PASSWD";
+const char* ssid = "NiceMoose";
+const char* password = "NetgearW";
 
 // Neopixel settings
-const int numLeds = 39; // change for your setup
+const int numLeds = 39; // CHANGE FOR YOUR SETUP
 
 Adafruit_NeoPixel leds = Adafruit_NeoPixel(numLeds, PIN_LED, NEO_GRB + NEO_KHZ800);
 
 // Artnet settings
 ArtnetWifi artnet;
-const int startUniverse = 0; // CHANGE FOR YOUR SETUP most software this is 1, some software send out artnet first universe as zero.
 const int numberOfChannels = numLeds * 3; // Total number of channels you want to receive (1 led = 3 channels)
-byte channelBuffer[numberOfChannels]; // Combined universes into a single array
+byte channelBuffer[numberOfChannels];     // Combined universes into a single array
 
 // SD card
 File datafile;
@@ -46,6 +49,7 @@ volatile bool startRecord = false;
 volatile bool stopRecord  = false;
 volatile bool recording   = false;
 
+int bufferIndex = 0;
 
 // Check if we got all universes
 const int maxUniverses = numberOfChannels / 512 + ((numberOfChannels % 512) ? 1 : 0);
@@ -195,20 +199,20 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
     }
   }
   
-  // read universe and put into the right part of the display buffer
+  // Read universe data and put into the right part of the display buffer
   for (int i = 0 ; i < length ; i++)
   {
-    int bufferIndex = i + ((universe - startUniverse) * length);
     if (bufferIndex < numberOfChannels) // to verify
-      channelBuffer[bufferIndex] = byte(data[i]);
+      channelBuffer[bufferIndex++] = byte(data[i]);
   }
   
-  // Write data to the file if a full DMX frame containing data for all the universes is received and if we 
-  // are still recording
+  // Write data to the file after DMX frames containing data for all the universes 
+  // is received and if we are still recording
   if (recording && storeFrame)
   {    
     datafile.write(channelBuffer, numberOfChannels);
     memset(universesReceived, 0, maxUniverses);
+    bufferIndex = 0;
   } 
 }
 

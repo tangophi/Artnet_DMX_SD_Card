@@ -1,39 +1,34 @@
-/*
+  /*
  * This sketch is used to read the stored LED lighting effects from a SD card on a 
  * nodemcu or a ESP8266 module.  'Next' button will play the file or effect.  Previous
  * button will play the previous effect.
  * 
  * WiFi connection is not needed for this sketch to work.
+ * 
+ * Update FRAME_TIME to match your setup.
  *  
  * https://github.com/tangophi/Artnet_DMX_SD_Card
 */
 
 #include <SPI.h>
 #include <SD.h>
-#include <ESP8266WiFi.h>
-#include <WiFiUdp.h>
-#include <ArtnetWifi.h>
 #include <Adafruit_NeoPixel.h>
+
+#define FRAME_TIME            33  // CHANGE FOR YOUR SETUP.  Should be the same as the Frame Time in Madrix -> Preferences-> Device Manager-> DMX Devices config.
 
 #define PIN_PREVIOUS_BUTTON   4
 #define PIN_NEXT_BUTTON       5
 #define PIN_SD_CS             15
 #define PIN_LED               2
 
-//Wifi settings
-const char* ssid = "YOUR_SSID";
-const char* password = "YOUR_PASSWD";
 
 // Neopixel settings
 const int numLeds = 39; // change for your setup
 
 Adafruit_NeoPixel leds = Adafruit_NeoPixel(numLeds, PIN_LED, NEO_GRB + NEO_KHZ800);
 
-// Artnet settings
-ArtnetWifi artnet;
-const int startUniverse = 0; // CHANGE FOR YOUR SETUP most software this is 1, some software send out artnet first universe as zero.
 const int numberOfChannels = numLeds * 3; // Total number of channels you want to receive (1 led = 3 channels)
-byte channelBuffer[numberOfChannels]; // Combined universes into a single array
+byte channelBuffer[numberOfChannels];     // Combined universes into a single array
 
 // SD card
 File datafile;
@@ -45,46 +40,6 @@ int  totalFilesCount  = 0;
 volatile bool prevFile = false;
 volatile bool nextFile = false;
 
-
-// Check if we got all universes
-const int maxUniverses = numberOfChannels / 512 + ((numberOfChannels % 512) ? 1 : 0);
-bool universesReceived[maxUniverses];
-bool sendFrame = 1;
-
-// connect to wifi – returns true if successful or false if not
-boolean ConnectWifi(void)
-{
-  boolean state = true;
-  int i = 0;
-
-  WiFi.begin(ssid, password);
-  Serial.println("");
-  Serial.println("Connecting to WiFi");
-  
-  // Wait for connection
-  Serial.print("Connecting");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-    if (i > 20){
-      state = false;
-      break;
-    }
-    i++;
-  }
-  if (state){
-    Serial.println("");
-    Serial.print("Connected to ");
-    Serial.println(ssid);
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-  } else {
-    Serial.println("");
-    Serial.println("Connection failed.");
-  }
-  
-  return state;
-}
 
 void buttonHandlerPrevious()
 {
@@ -118,8 +73,6 @@ void setup()
   else
     Serial.println("initialization done.");
 
-//  ConnectWifi();
-//  artnet.begin();
   leds.begin();
 //  initTest();
   
@@ -203,7 +156,7 @@ void loop()
       leds.setPixelColor(i, channelBuffer[(i) * 3], channelBuffer[(i * 3) + 1], channelBuffer[(i * 3) + 2]);
       
     leds.show();
-    delay(20);
+    delay(FRAME_TIME);
   }
   else
   {
