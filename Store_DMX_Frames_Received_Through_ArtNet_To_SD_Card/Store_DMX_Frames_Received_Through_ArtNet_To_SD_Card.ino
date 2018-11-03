@@ -6,9 +6,13 @@
  *  LED strip need not be connected for this sketch to work.  However the strip need to be defined
  *  in the sketch so that the sketch can calculate the number of pixels, channels and universes.
  *  
- *  Change numLeds and startUniverse according to your setup.
+ *  Requirements:
+ *  -------------
+ *  All the universes should be sequential.  That is if first universe is 10, second should be 11, 
+ *  third should be 12, etc...
  *  
- *  In Madrix, in Preferences-> Device Manager-> DMX Devices, make sure "Send full frames" box is not checked.
+ *  In Madrix, in Preferences-> Device Manager-> DMX Devices, make sure "Send full frames" box is 
+ *  not checked.
  *  
  * https://github.com/tangophi/Artnet_DMX_SD_Card 
 */
@@ -20,24 +24,36 @@
 #include <ArtnetWifi.h>
 #include <Adafruit_NeoPixel.h>
 
+/***********************************************************
+/* These settings need to be changed according to your setup
+/************************************************************/
+
 #define PIN_START_BUTTON   4
 #define PIN_STOP_BUTTON    5
 #define PIN_SD_CS          15
 #define PIN_LED            2
 
 //Wifi settings
-const char* ssid = "NiceMoose";
-const char* password = "NetgearW";
+const char* ssid = "SSID";         // CHANGE FOR YOUR SETUP
+const char* password = "PASSWORD"; // CHANGE FOR YOUR SETUP
 
 // Neopixel settings
-const int numLeds = 39; // CHANGE FOR YOUR SETUP
+const int numLeds = 39;            // CHANGE FOR YOUR SETUP
+
+// Madrix settings
+const int firstUniverse = 10;      // CHANGE FOR YOUR SETUP
+const int lastUniverse   = 12;      // CHANGE FOR YOUR SETUP     
+
+/************************************************************/
+
+
 
 Adafruit_NeoPixel leds = Adafruit_NeoPixel(numLeds, PIN_LED, NEO_GRB + NEO_KHZ800);
 
 // Artnet settings
 ArtnetWifi artnet;
 const int numberOfChannels = numLeds * 3; // Total number of channels you want to receive (1 led = 3 channels)
-byte channelBuffer[numberOfChannels];     // Combined universes into a single array
+byte channelBuffer[numberOfChannels];     // Combined data from all universes into a single array
 
 // SD card
 File datafile;
@@ -52,7 +68,7 @@ volatile bool recording   = false;
 int bufferIndex = 0;
 
 // Check if we got all universes
-const int maxUniverses = numberOfChannels / 512 + ((numberOfChannels % 512) ? 1 : 0);
+const int maxUniverses = lastUniverse - firstUniverse + 1;
 bool universesReceived[maxUniverses];
 bool storeFrame = 1;
 
@@ -119,11 +135,13 @@ void setup()
   }
   
   if (!SD.begin(PIN_SD_CS)) {
-    Serial.println("Initialization failed!");
+    Serial.println("SD card initialization failed!");
   }
   else
-    Serial.println("Initialization done.");
-
+  {
+    Serial.println("SD card initialization done.");
+  }
+  
   ConnectWifi();
   artnet.begin();
   leds.begin();
@@ -139,6 +157,8 @@ void setup()
   
   // this will be called for each packet received
   artnet.setArtDmxCallback(onDmxFrame);
+
+  Serial.printf("Initial config: numLeds=%4d : numberOfChannels=%4d : firstUniverse=%3d : lastUniverse=%3d\n", numLeds, numberOfChannels, firstUniverse, lastUniverse);
 }
 
 void loop()
@@ -193,7 +213,7 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
   {
     if (universesReceived[i] == 0)
     {
-      //Serial.println("Broke");
+      //Serial.println("Break");
       storeFrame = 0;
       break;
     }
@@ -202,14 +222,20 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
   // Read universe data and put into the right part of the display buffer
   for (int i = 0 ; i < length ; i++)
   {
-    if (bufferIndex < numberOfChannels) // to verify
+    
+    if (bufferIndex < numberOfChannels)
+    {
+      Serial.printf("Into buffer: Univ=%3d : len=%3d : bufIdx = %3d : i=%3d : data=%d\n", universe, length, bufferIndex, i, data[i]); 
       channelBuffer[bufferIndex++] = byte(data[i]);
+    }
+      
   }
   
   // Write data to the file after DMX frames containing data for all the universes 
   // is received and if we are still recording
   if (recording && storeFrame)
-  {    
+  { 
+    Serial.printf("Into file: numChannels=%3d : maxUnivs=%d : bufIdx=%3d \n", numberOfChannels, maxUniverses, bufferIndex-1);    
     datafile.write(channelBuffer, numberOfChannels);
     memset(universesReceived, 0, maxUniverses);
     bufferIndex = 0;

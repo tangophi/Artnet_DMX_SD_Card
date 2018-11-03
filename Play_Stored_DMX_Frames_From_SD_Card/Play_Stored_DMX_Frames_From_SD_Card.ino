@@ -14,6 +14,10 @@
 #include <SD.h>
 #include <Adafruit_NeoPixel.h>
 
+/***********************************************************
+/* These settings need to be changed according to your setup
+/************************************************************/
+
 #define FRAME_TIME            33  // CHANGE FOR YOUR SETUP.  Should be the same as the Frame Time in Madrix -> Preferences-> Device Manager-> DMX Devices config.
 
 #define PIN_PREVIOUS_BUTTON   4
@@ -21,9 +25,13 @@
 #define PIN_SD_CS             15
 #define PIN_LED               2
 
-
 // Neopixel settings
-const int numLeds = 39; // change for your setup
+const int numLeds = 39;          // CHANGE FOR YOUR SETUP.
+
+/************************************************************/
+
+
+
 
 Adafruit_NeoPixel leds = Adafruit_NeoPixel(numLeds, PIN_LED, NEO_GRB + NEO_KHZ800);
 
@@ -68,11 +76,13 @@ void setup()
   }
   
   if (!SD.begin(PIN_SD_CS)) {
-    Serial.println("initialization failed!");
+    Serial.println("SD card initialization failed!");
   }
   else
-    Serial.println("initialization done.");
-
+  {
+    Serial.println("SD card initialization done.");
+  }
+  
   leds.begin();
 //  initTest();
   
