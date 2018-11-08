@@ -11,6 +11,8 @@
  *  All the universes should be sequential.  That is if first universe is 10, second should be 11, 
  *  third should be 12, etc...
  *  
+ *  Madrix should be configured to send the first universe first, second next, and so on.
+ *  
  *  In Madrix, in Preferences-> Device Manager-> DMX Devices, make sure "Send full frames" box is 
  *  not checked.
  *  
@@ -38,11 +40,11 @@ const char* ssid = "SSID";         // CHANGE FOR YOUR SETUP
 const char* password = "PASSWORD"; // CHANGE FOR YOUR SETUP
 
 // Neopixel settings
-const int numLeds = 39;            // CHANGE FOR YOUR SETUP
+const int numLeds = 600;            // CHANGE FOR YOUR SETUP
 
 // Madrix settings
-const int firstUniverse = 10;      // CHANGE FOR YOUR SETUP
-const int lastUniverse   = 12;      // CHANGE FOR YOUR SETUP     
+const int firstUniverse =  10;      // CHANGE FOR YOUR SETUP
+const int lastUniverse   = 13;      // CHANGE FOR YOUR SETUP     
 
 /************************************************************/
 
@@ -163,9 +165,32 @@ void setup()
 
 void loop()
 {
+  char c;
   // we call the read function inside the loop
   artnet.read();
 
+  if (Serial.available())
+  {
+    c = Serial.read();
+
+    if (c == 's')
+    {
+      if (!recording && !startRecord)
+      {
+        startRecord = true;
+        Serial.println("Start button pressed.");
+      }    
+    }
+    else if (c == 'e')
+    {
+      if (recording && !stopRecord)
+      {
+        stopRecord = true;
+        Serial.println("Stop button pressed.");
+      }
+    }
+  }
+  
   // Open a file for writing when the start button is pressed
   // and also set recording to true so that incoming DMX frames
   // are written to the file.
@@ -191,7 +216,7 @@ void loop()
     Serial.println(fileNameFull);
 
     datafile.close();
-    sprintf(fileNameFull, "data%d", ++fileNameSuffix);  // fileNameSuffix is incremened for the next filename.
+    sprintf(fileNameFull, "data%d", ++fileNameSuffix);  // fileNameSuffix is incremented for the next filename.
     stopRecord = false;
   }
 }
@@ -203,10 +228,20 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
 {
   storeFrame = 1;
 
+  Serial.printf("DMX recd: univ=%3d : len=%3d\n", universe, length);
+  
   // Store which universe has got in
   if (universe < maxUniverses)
+  {
+    // On the start of a full frame (all universes constitue a full frame), wait 
+    // till the firstUniverse is received.  Otherwise exit
+    if ((bufferIndex == 0) && (universe != (firstUniverse - 1)))
+    {
+      return;
+    }
     universesReceived[universe] = 1;
-
+  }
+  
   // See if data for all universes is received.  If it is, then storeFrame will still be 1 and in the next
   // code block, the full DMX frame (containing data for all the universes) will be written to the file.
   for (int i = 0 ; i < maxUniverses ; i++)
@@ -218,6 +253,8 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
       break;
     }
   }
+
+  
   
   // Read universe data and put into the right part of the display buffer
   for (int i = 0 ; i < length ; i++)
@@ -225,7 +262,7 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
     
     if (bufferIndex < numberOfChannels)
     {
-      Serial.printf("Into buffer: Univ=%3d : len=%3d : bufIdx = %3d : i=%3d : data=%d\n", universe, length, bufferIndex, i, data[i]); 
+      Serial.printf("bufI=%3d : i=%3d : d=%d\n", bufferIndex, i, data[i]); 
       channelBuffer[bufferIndex++] = byte(data[i]);
     }
       
