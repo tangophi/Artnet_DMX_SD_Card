@@ -228,18 +228,22 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* d
 {
   storeFrame = 1;
 
+  // The universe Madrix sends become decremented by 1 when it reaches here.  Not sure why.
+  // But increment it back up.
+  universe++;
+
   Serial.printf("DMX recd: univ=%3d : len=%3d\n", universe, length);
   
-  // Store which universe has got in
-  if (universe < maxUniverses)
+  // Store which universe has got in now
+  if ((universe >= firstUniverse) && (universe <= lastUniverse))
   {
-    // On the start of a full frame (all universes constitue a full frame), wait 
-    // till the firstUniverse is received.  Otherwise exit
-    if ((bufferIndex == 0) && (universe != (firstUniverse - 1)))
+    // On the start of a full frame (all universes constitute a full frame), wait 
+    // till the firstUniverse is received.  Otherwise exit.
+    if ((bufferIndex == 0) && (universe != firstUniverse))
     {
       return;
     }
-    universesReceived[universe] = 1;
+    universesReceived[universe - firstUniverse] = 1;
   }
   
   // See if data for all universes is received.  If it is, then storeFrame will still be 1 and in the next
